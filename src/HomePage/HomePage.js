@@ -1,8 +1,46 @@
-import React from 'react';
+import React, { Component } from 'react'
+import axios from 'axios';
+import { Pie } from 'react-chartjs-2';
 
-function Homepage() {
-  return (
-    <main className="center" id="main">
+class HomePage extends Component {
+  state = {
+    data: {
+      datasets: [
+        {
+            data: [],
+            backgroundColor: [
+                '#793E51',
+                '#C08497',
+                '#F7AF9D',
+                '#F7E3AF',
+                '#F3EEC3',
+                '#427176',
+                '#B0D0D3',
+            ]
+        }
+      ],
+      labels: []
+    } 
+  }
+
+  async componentDidMount(){
+    const res = await axios.get('http://localhost:4000/budget');
+    let tempData = this.state.data;
+    for(let i=0;i<res.data.myBudget.length;i++){
+        tempData.datasets[0].data[i]=res.data.myBudget[i].budget;
+        tempData.labels[i] = res.data.myBudget[i].title;
+    }
+
+    this.setState({
+      data: Object.assign({}, this.state.data, {
+          data: tempData
+      })
+    });
+  }
+  
+  render() {
+    return (
+        <main className="center" id="main">
 
         <div className="page-area">
 
@@ -66,14 +104,20 @@ function Homepage() {
             <article>
                 <h1>Chart</h1>
                 <p>
-                    <canvas id="myChart" width="400" height="400"></canvas>
+                    <Pie 
+                    data={this.state.data}
+                    height={400}
+                    width={400}
+                     />
                 </p>
             </article>
 
         </div>
 
     </main>
-  );
+        
+    )
+  }
 }
 
-export default Homepage;
+export default HomePage;
